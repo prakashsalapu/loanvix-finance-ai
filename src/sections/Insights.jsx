@@ -55,7 +55,7 @@ export default function Insights() {
     insights.push({
       icon: AlertTriangle,
       title: 'High interest burden',
-      body: `You will pay ${formatCurrency(totalInterest)} in interest — ${(interestRatio * 100).toFixed(0)}% of your principal. Consider negotiating a lower rate or reducing the tenure.`,
+      body: `You will pay ${formatCurrency(totalInterest)} in interest - ${(interestRatio * 100).toFixed(0)}% of your principal. Consider negotiating a lower rate or reducing the tenure.`,
       type: 'warn',
       delay: 0.05
     })
@@ -71,7 +71,7 @@ export default function Insights() {
     insights.push({
       icon: CheckCircle2,
       title: 'Lean interest cost',
-      body: `Your total interest is ${formatCurrency(totalInterest)}, which is ${(interestRatio * 100).toFixed(0)}% of the principal — well within a healthy range for this tenure.`,
+      body: `Your total interest is ${formatCurrency(totalInterest)}, which is ${(interestRatio * 100).toFixed(0)}% of the principal - well within a healthy range for this tenure.`,
       type: 'good',
       delay: 0.05
     })
@@ -102,7 +102,7 @@ export default function Insights() {
   if (tenure > 240) {
     insights.push({
       icon: Lightbulb,
-      title: 'Long tenure — consider reducing',
+      title: 'Long tenure - consider reducing',
       body: `A ${formatTenure(tenure)} tenure maximises total interest paid. Reducing it by even 24 months can save ${formatCurrency(emi * 24 * 0.35)} on average in interest.`,
       type: 'warn',
       delay: 0.15
@@ -110,7 +110,7 @@ export default function Insights() {
   } else if (tenure <= 60) {
     insights.push({
       icon: CheckCircle2,
-      title: 'Short tenure — great choice',
+      title: 'Short tenure - great choice',
       body: `Repaying in ${formatTenure(tenure)} keeps total interest low. Ensure the monthly EMI of ${formatCurrency(emi)} fits comfortably within 40% of your income.`,
       type: 'good',
       delay: 0.15

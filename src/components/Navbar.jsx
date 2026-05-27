@@ -77,7 +77,7 @@ export default function Navbar() {
               <IndianRupee className="w-4 h-4 text-white" />
             </div>
             <span className="text-lg font-bold text-gray-900">
-              Loan<span className="gradient-text">Wise</span>
+              Loan<span className="gradient-text">Vix</span>
             </span>
           </a>
 

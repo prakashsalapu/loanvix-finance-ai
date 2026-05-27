@@ -2,294 +2,681 @@ import { useState, useMemo, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useInView } from '../hooks/useScrollPosition'
 import { useCalculator } from '../context/CalculatorContext'
-import { formatCurrency, generateScheduleCSV } from '../utils/calculations'
-import { Search, Download, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
+
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
+import {
+  Download,
+  FileText,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react'
 
 const ITEMS_PER_PAGE = 12
 
-async function exportPDF(schedule, values, results) {
-  // Dynamically import to keep initial bundle small
-  const { default: jsPDF } = await import('jspdf')
-  const { default: autoTable } = await import('jspdf-autotable')
-
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-
-  // Header
-  doc.setFontSize(20)
-  doc.setTextColor(37, 99, 235)
-  doc.text('LoanVix — Repayment Schedule', 14, 18)
-
-  doc.setFontSize(10)
-  doc.setTextColor(100, 100, 100)
-  doc.text(`Generated on ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`, 14, 25)
-
-  // Summary box
-  const summaryY = 32
-  doc.setFontSize(9)
-  doc.setTextColor(60, 60, 60)
-  const summaryData = [
-    ['Loan Amount', `₹${Math.round(values.loanAmount).toLocaleString('en-IN')}`],
-    ['Interest Rate', `${values.interestRate}% p.a.`],
-    ['Tenure', `${values.tenure} months`],
-    ['Monthly EMI', `₹${Math.round(results.emi).toLocaleString('en-IN')}`],
-    ['Total Interest', `₹${Math.round(results.totalInterest).toLocaleString('en-IN')}`],
-    ['Total Payment', `₹${Math.round(results.totalPayment).toLocaleString('en-IN')}`]
-  ]
-  summaryData.forEach(([label, val], i) => {
-    const col = i < 3 ? 0 : 1
-    const row = i % 3
-    doc.text(`${label}: ${val}`, 14 + col * 95, summaryY + row * 6)
-  })
-
-  // Table
-  autoTable(doc, {
-    startY: summaryY + 22,
-    head: [['Month', 'EMI (₹)', 'Principal (₹)', 'Interest (₹)', 'Balance (₹)']],
-    body: schedule.map(r => [
-      r.month,
-      Math.round(r.emi).toLocaleString('en-IN'),
-      Math.round(r.principal).toLocaleString('en-IN'),
-      Math.round(r.interest).toLocaleString('en-IN'),
-      Math.round(r.balance).toLocaleString('en-IN')
-    ]),
-    headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold', fontSize: 9 },
-    bodyStyles: { fontSize: 8.5, textColor: [55, 65, 81] },
-    alternateRowStyles: { fillColor: [249, 250, 251] },
-    columnStyles: {
-      0: { halign: 'center', cellWidth: 18 },
-      1: { halign: 'right' },
-      2: { halign: 'right' },
-      3: { halign: 'right' },
-      4: { halign: 'right' }
-    },
-    margin: { left: 14, right: 14 }
-  })
-
-  doc.save('loanvix-repayment-schedule.pdf')
-}
-
-function exportCSV(schedule, values, results) {
-  const meta = {
-    'Loan Amount': `₹${Math.round(values.loanAmount).toLocaleString('en-IN')}`,
-    'Interest Rate': `${values.interestRate}%`,
-    'Tenure': `${values.tenure} months`,
-    'Monthly EMI': `₹${Math.round(results.emi).toLocaleString('en-IN')}`,
-    'Total Interest': `₹${Math.round(results.totalInterest).toLocaleString('en-IN')}`
-  }
-  const csv = generateScheduleCSV(schedule, { title: 'LoanVix Repayment Schedule', ...meta })
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'loanvix-repayment-schedule.csv'
-  a.click()
-  URL.revokeObjectURL(url)
+const formatAmount = (value) => {
+  return `₹${Math.round(value).toLocaleString('en-IN')}`
 }
 
 export default function Schedule() {
+
   const [ref, isInView] = useInView()
-  const { values, results } = useCalculator()
+
+  const { results } = useCalculator()
+
   const [searchTerm, setSearchTerm] = useState('')
+
   const [currentPage, setCurrentPage] = useState(1)
-  const [pdfLoading, setPdfLoading] = useState(false)
+
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split('T')[0]
+  )
+
+  const generateDate = (monthIndex) => {
+
+    const date = new Date(startDate)
+
+    date.setMonth(date.getMonth() + monthIndex)
+
+    return date.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric' 
+    })
+
+  }
+
+  const enhancedSchedule = useMemo(() => {
+
+    return results.schedule.map((row, index) => ({
+      ...row,
+      paymentDate: generateDate(index)
+    }))
+
+  }, [results.schedule, startDate])
 
   const filteredSchedule = useMemo(() => {
-    if (!searchTerm.trim()) return results.schedule
+
+    if (!searchTerm.trim()) {
+      return enhancedSchedule
+    }
+
     const term = searchTerm.toLowerCase()
-    return results.schedule.filter(row =>
-      row.month.toString().includes(term) ||
+
+   return enhancedSchedule.filter((row) =>
+
+      row.paymentDate.toLowerCase().includes(term) ||
       Math.round(row.emi).toString().includes(term) ||
       Math.round(row.principal).toString().includes(term) ||
       Math.round(row.interest).toString().includes(term) ||
       Math.round(row.balance).toString().includes(term)
-    )
-  }, [results.schedule, searchTerm])
 
-  const totalPages = Math.ceil(filteredSchedule.length / ITEMS_PER_PAGE)
+    )
+
+  }, [enhancedSchedule, searchTerm])
+
+  const totalPages = Math.ceil(
+    filteredSchedule.length / ITEMS_PER_PAGE
+  )
+
   const paginatedSchedule = filteredSchedule.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   )
 
   const handleSearch = useCallback((e) => {
+
     setSearchTerm(e.target.value)
+
     setCurrentPage(1)
+
   }, [])
 
-  const handlePdfExport = async () => {
-    setPdfLoading(true)
-    try {
-      await exportPDF(results.schedule, values, results)
-    } finally {
-      setPdfLoading(false)
+  const downloadCSV = () => {
+
+    const headers = [
+      'Month',
+      'Date',
+      'EMI',
+      'Principal',
+      'Interest',
+      'Balance'
+    ]
+
+    const rows = enhancedSchedule.map((row) => [
+      row.month,
+      row.paymentDate,
+      Math.round(row.emi),
+      Math.round(row.principal),
+      Math.round(row.interest),
+      Math.round(row.balance)
+    ])
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((r) => r.join(','))
+    ].join('\n')
+
+    const blob = new Blob(
+      [csvContent],
+      { type: 'text/csv;charset=utf-8;' }
+    )
+
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+
+    link.href = url
+
+    link.download = 'loanvix-schedule.csv'
+
+    document.body.appendChild(link)
+
+    link.click()
+
+    document.body.removeChild(link)
+
+    URL.revokeObjectURL(url)
+
+  }
+
+  const downloadPDF = () => {
+
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    const primary = [37, 99, 235]
+    const gray = [107, 114, 128]
+
+    const pageWidth =
+      doc.internal.pageSize.getWidth()
+
+    const pageHeight =
+      doc.internal.pageSize.getHeight()
+
+    
+
+    // HEADER
+
+    doc.setFont('helvetica', 'bold')
+
+    doc.setFontSize(22)
+
+    doc.setTextColor(...primary)
+
+    doc.text('LoanVix', 14, 18)
+
+    doc.setFontSize(11)
+
+    doc.setTextColor(...gray)
+
+    doc.text(
+      'Loan Repayment Statement',
+      14,
+      25
+    )
+
+    // LINE
+
+    doc.setDrawColor(230)
+
+    doc.line(14, 30, 196, 30)
+
+    // SUMMARY
+
+    doc.setFontSize(10)
+
+    doc.setTextColor(40)
+
+    const summaryY = 40
+
+    const loanAmount =
+      (results.schedule[0]?.balance || 0) +
+      (results.schedule[0]?.principal || 0)
+
+    const monthlyEmi =
+      results.schedule[0]?.emi || 0
+
+    const summary = [
+
+      [
+        'Loan Amount',
+        `${Math.round(loanAmount).toLocaleString('en-IN')}`
+      ],
+
+      [
+        'Monthly EMI',
+        `${Math.round(monthlyEmi).toLocaleString('en-IN')}`
+      ],
+
+      [
+        'Total Months',
+        `${results.schedule.length}`
+      ],
+
+      [
+        'Generated',
+        new Date().toLocaleDateString('en-IN')
+      ]
+
+    ]
+
+    summary.forEach((item, index) => {
+
+      const x = index % 2 === 0 ? 14 : 110
+
+      const y =
+        summaryY + Math.floor(index / 2) * 8
+
+      doc.setFont('helvetica', 'bold')
+
+      doc.text(`${item[0]}:`, x, y)
+
+      doc.setFont('helvetica', 'normal')
+
+      doc.text(`${item[1]}`, x + 35, y)
+
+    })
+
+    // TABLE
+
+    autoTable(doc, {
+
+      startY: 60,
+
+      theme: 'grid',
+
+      head: [[
+        'Month',
+        'Date',
+        'EMI',
+        'Principal',
+        'Interest',
+        'Balance'
+      ]],
+
+      body: enhancedSchedule.map((row) => [
+
+        row.month,
+
+        row.paymentDate,
+
+        `${Math.round(row.emi).toLocaleString('en-IN')}`,
+
+        `${Math.round(row.principal).toLocaleString('en-IN')}`,
+
+        `${Math.round(row.interest).toLocaleString('en-IN')}`,
+
+        `${Math.round(row.balance).toLocaleString('en-IN')}`
+
+      ]),
+
+      styles: {
+
+        font: 'helvetica',
+
+        fontStyle: 'normal',
+
+        fontSize: 9,
+
+        cellPadding: 3,
+
+        overflow: 'linebreak',
+
+        valign: 'middle',
+
+        halign: 'right',
+
+        textColor: [31, 41, 55],
+
+        lineColor: [229, 231, 235],
+
+        lineWidth: 0.2
+
+      },
+
+      headStyles: {
+
+        fillColor: primary,
+
+        textColor: 255,
+
+        fontStyle: 'bold',
+
+        halign: 'center',
+
+        fontSize: 10
+
+      },
+
+      alternateRowStyles: {
+
+        fillColor: [249, 250, 251]
+
+      },
+
+      columnStyles: {
+
+        0: {
+          halign: 'center',
+          cellWidth: 18
+        },
+
+        1: {
+          halign: 'center',
+          cellWidth: 30
+        },
+
+        2: {
+          halign: 'right',
+          cellWidth: 32
+        },
+
+        3: {
+          halign: 'right',
+          cellWidth: 32
+        },
+
+        4: {
+          halign: 'right',
+          cellWidth: 32
+        },
+
+        5: {
+          halign: 'right',
+          cellWidth: 40
+        }
+
+      },
+
+      margin: {
+        left: 14,
+        right: 14
+      },
+
+
+    })
+
+    // FOOTER
+
+    const pageCount =
+      doc.internal.getNumberOfPages()
+
+    for (let i = 1; i <= pageCount; i++) {
+
+      doc.setPage(i)
+
+      doc.setFontSize(8)
+
+      doc.setTextColor(120)
+
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        180,
+        290
+      )
+
+      doc.text(
+  'Generated by LoanVix',
+  14,
+  286
+)
+
+    doc.setFontSize(7)
+
+    doc.setTextColor(140)
+
+    doc.text(
+      'This repayment statement is system generated for informational purposes only and does not require a physical signature.',
+      14,
+      291
+    )
+
     }
+
+    doc.save('loanvix-bank-statement.pdf')
+
   }
 
   return (
-    <section id="schedule" ref={ref} className="py-16 lg:py-24 bg-white" aria-labelledby="schedule-heading">
+
+    <section
+      id="schedule"
+      ref={ref}
+      className="py-16 lg:py-24 bg-white"
+    >
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Header */}
+        {/* HEADER */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-12"
         >
+
           <span className="inline-block px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-sm font-medium mb-4 border border-blue-100">
             Schedule
           </span>
-          <h2 id="schedule-heading" className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 text-balance leading-tight">
-            Detailed <span className="gradient-text">repayment schedule</span>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+            Detailed{' '}
+            <span className="gradient-text">
+              repayment schedule
+            </span>
           </h2>
+
           <p className="text-base sm:text-lg text-gray-500">
-            Complete month-by-month breakdown with principal, interest, and outstanding balance.
+            Complete month-by-month breakdown with principal,
+            interest, and outstanding balance.
           </p>
+
         </motion.div>
 
-        {/* Controls */}
+        {/* CONTROLS */}
+
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-start sm:items-center mb-6"
+          transition={{ duration: 0.5 }}
+          className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center mb-6"
         >
-          {/* Search */}
-          <div className="relative w-full sm:flex-1 lg:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" />
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={handleSearch}
-              placeholder="Search by month or amount..."
-              className="input pl-9 w-full"
-              aria-label="Search repayment schedule"
-            />
+
+          <div className="flex flex-col sm:flex-row gap-4 w-full">
+
+            {/* DATE */}
+
+            <div className="w-full sm:w-72">
+
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                min="2000-01-01"
+                max="2100-12-31"
+                className="input w-full"
+              />
+
+            </div>
+
+            {/* SEARCH */}
+
+            <div className="flex-1">
+
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={handleSearch}
+                placeholder="Search by Date or Amount..."
+                className="input w-full"
+              />
+
+            </div>
+
           </div>
 
-          {/* Export buttons */}
+          {/* EXPORT BUTTONS */}
+
           <div className="flex gap-2 w-full sm:w-auto">
+
             <button
-              onClick={() => exportCSV(results.schedule, values, results)}
-              className="btn btn-secondary flex-1 sm:flex-none text-sm px-3 sm:px-4 py-2.5"
-              aria-label="Export schedule as CSV"
-              disabled={results.schedule.length === 0}
+              onClick={downloadCSV}
+              className="btn btn-secondary flex-1 sm:flex-none text-sm px-4 py-2.5"
             >
-              <Download className="w-4 h-4" aria-hidden="true" />
-              <span className="hidden sm:inline">CSV</span>
+
+              <Download className="w-4 h-4" />
+
+              CSV
+
             </button>
+
             <button
-              onClick={handlePdfExport}
-              className="btn btn-primary flex-1 sm:flex-none text-sm px-3 sm:px-4 py-2.5"
-              aria-label="Export schedule as PDF"
-              disabled={pdfLoading || results.schedule.length === 0}
+              onClick={downloadPDF}
+              className="btn btn-primary flex-1 sm:flex-none text-sm px-4 py-2.5"
             >
-              {pdfLoading ? (
-                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" aria-hidden="true" />
-              ) : (
-                <FileText className="w-4 h-4" aria-hidden="true" />
-              )}
-              <span className="hidden sm:inline">{pdfLoading ? 'Generating...' : 'PDF'}</span>
+
+              <FileText className="w-4 h-4" />
+
+              PDF
+
             </button>
+
           </div>
+
         </motion.div>
 
-        {/* Table */}
+        {/* TABLE */}
+
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.25 }}
+          transition={{ duration: 0.5 }}
         >
-          {results.schedule.length === 0 ? (
-            <div className="table-container p-12 text-center text-gray-400">
-              <p className="text-base font-medium">No schedule to display — please enter valid loan values.</p>
-            </div>
-          ) : (
-            <div className="table-container">
-              <div style={{ maxHeight: '460px', overflowY: 'auto' }}>
-                <table aria-label="Loan repayment schedule">
-                  <thead>
+
+          <div className="table-container overflow-hidden">
+
+            <div className="overflow-x-auto">
+
+              <div
+                style={{
+                  maxHeight: '500px',
+                  overflowY: 'auto'
+                }}
+              >
+
+                <table className="min-w-full">
+
+                  <thead className="sticky top-0 bg-white z-10">
+
                     <tr>
-                      <th scope="col" className="text-center">Month</th>
-                      <th scope="col" className="text-right">EMI</th>
-                      <th scope="col" className="text-right">Principal</th>
-                      <th scope="col" className="text-right">Interest</th>
-                      <th scope="col" className="text-right">Balance</th>
+
+                      <th className="text-center">
+                        Month
+                      </th>
+
+                      <th className="text-center">
+                        Date
+                      </th>
+
+                      <th className="text-right">
+                        EMI
+                      </th>
+
+                      <th className="text-right">
+                        Principal
+                      </th>
+
+                      <th className="text-right">
+                        Interest
+                      </th>
+
+                      <th className="text-right">
+                        Balance
+                      </th>
+
                     </tr>
+
                   </thead>
+
                   <tbody>
+
                     {paginatedSchedule.map((row) => (
-                      <tr key={row.month} className="hover:bg-gray-50 transition-colors">
-                        <td className="text-center font-medium text-gray-900">{row.month}</td>
-                        <td className="text-right font-semibold text-gray-900">{formatCurrency(row.emi)}</td>
-                        <td className="text-right text-blue-600">{formatCurrency(row.principal)}</td>
-                        <td className="text-right text-emerald-600">{formatCurrency(row.interest)}</td>
-                        <td className="text-right text-gray-500">{formatCurrency(row.balance)}</td>
+
+                      <tr
+                        key={`${row.month}-${row.paymentDate}`}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+
+                        <td className="text-center font-medium text-gray-900">
+                          {row.month}
+                        </td>
+
+                        <td className="text-center text-gray-600">
+                          {row.paymentDate}
+                        </td>
+
+                        <td className="text-right font-semibold text-gray-900">
+                          {formatAmount(row.emi)}
+                        </td>
+
+                        <td className="text-right text-blue-600">
+                          {formatAmount(row.principal)}
+                        </td>
+
+                        <td className="text-right text-emerald-600">
+                          {formatAmount(row.interest)}
+                        </td>
+
+                        <td className="text-right text-gray-500">
+                          {formatAmount(row.balance)}
+                        </td>
+
                       </tr>
+
                     ))}
+
                   </tbody>
+
                 </table>
+
               </div>
+
             </div>
-          )}
+
+          </div>
+
         </motion.div>
 
-        {/* Pagination */}
+        {/* PAGINATION */}
+
         {totalPages > 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : {}}
-            className="flex items-center justify-between mt-5"
-          >
+
+          <div className="flex items-center justify-between mt-5">
+
             <p className="text-sm text-gray-500">
-              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredSchedule.length)} of {filteredSchedule.length}
+
+              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}
+
+              –
+
+              {Math.min(
+                currentPage * ITEMS_PER_PAGE,
+                filteredSchedule.length
+              )}
+
+              {' '}of {filteredSchedule.length}
+
             </p>
+
             <div className="flex items-center gap-2">
+
               <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.max(1, p - 1))
+                }
                 disabled={currentPage === 1}
-                className="p-2 rounded-lg bg-gray-100 text-gray-600 disabled:opacity-40 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="Previous page"
+                className="p-2 rounded-lg bg-gray-100"
               >
+
                 <ChevronLeft className="w-4 h-4" />
+
               </button>
-              <span className="text-sm font-medium text-gray-700 px-2" aria-live="polite">
+
+              <span className="text-sm font-medium text-gray-700 px-2">
+
                 {currentPage} / {totalPages}
+
               </span>
+
               <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() =>
+                  setCurrentPage((p) =>
+                    Math.min(totalPages, p + 1)
+                  )
+                }
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-lg bg-gray-100 text-gray-600 disabled:opacity-40 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="Next page"
+                className="p-2 rounded-lg bg-gray-100"
               >
+
                 <ChevronRight className="w-4 h-4" />
+
               </button>
+
             </div>
-          </motion.div>
+
+          </div>
+
         )}
 
-        {/* Summary footer */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-8"
-        >
-          {[
-            { label: 'First EMI', value: formatCurrency(results.schedule[0]?.emi ?? 0) },
-            { label: 'Last EMI', value: formatCurrency(results.schedule[results.schedule.length - 1]?.emi ?? 0) },
-            { label: 'Total Payments', value: results.schedule.length, isCount: true },
-            { label: 'Final Balance', value: '₹0', isRaw: true }
-          ].map((item) => (
-            <div key={item.label} className="card p-4 sm:p-5 text-center border border-gray-100">
-              <p className="text-xs text-gray-500 mb-1">{item.label}</p>
-              <p className="text-base sm:text-lg font-bold text-gray-900">
-                {item.isCount ? item.value : item.isRaw ? item.value : item.value}
-              </p>
-            </div>
-          ))}
-        </motion.div>
       </div>
+
     </section>
+
   )
 }

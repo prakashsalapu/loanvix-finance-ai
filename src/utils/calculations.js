@@ -44,7 +44,7 @@ export function generateAmortizationSchedule(principal, annualRate, tenureMonths
     const interestPaid = roundTo(balance * r, 2)
     let principalPaid = roundTo(emi - interestPaid, 2)
 
-    // Last payment — settle remaining balance exactly
+    // Last payment - settle remaining balance exactly
     if (principalPaid >= balance || month === tenureMonths) {
       principalPaid = roundTo(balance, 2)
     }
@@ -123,7 +123,7 @@ export function formatTenure(months) {
 }
 
 /**
- * Validate calculator input values — returns an object of field-level error strings
+ * Validate calculator input values - returns an object of field-level error strings
  */
 export function validateInputs(values) {
   const errors = {}
