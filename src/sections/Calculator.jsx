@@ -244,7 +244,7 @@ export default function Calculator() {
             className="space-y-5 sm:space-y-6"
           >
             {/* EMI Hero Card */}
-            <div className="card gradient-bg p-5 sm:p-6 lg:p-7 text-white" aria-label="Monthly EMI result">
+            <div className="gradient-bg rounded-2xl shadow-lg p-5 sm:p-6 lg:p-7 text-white" aria-label="Monthly EMI result">
               {hasErrors ? (
                 <div className="py-4 text-center opacity-80">
                   <AlertCircle className="w-10 h-10 mx-auto mb-3 opacity-60" aria-hidden="true" />
