@@ -12,7 +12,7 @@ function roundTo(value, decimals = 2) {
  * P = Principal, R = Monthly Interest Rate, N = Tenure in months
  */
 export function calculateEMI(principal, annualRate, tenureMonths) {
-  if (!principal || !annualRate || !tenureMonths || principal <= 0 || tenureMonths <= 0) return 0
+  if (principal == null || annualRate == null || tenureMonths == null || principal <= 0 || tenureMonths <= 0) return 0
   if (annualRate === 0) return roundTo(principal / tenureMonths, 2)
 
   const r = annualRate / 12 / 100
@@ -129,13 +129,13 @@ export function validateInputs(values) {
   const errors = {}
   const { loanAmount, interestRate, tenure, processingFee, prepaymentAmount } = values
 
-  if (!loanAmount || loanAmount < 10000) errors.loanAmount = 'Minimum loan amount is ₹10,000'
+  if (loanAmount == null || loanAmount < 10000) errors.loanAmount = 'Minimum loan amount is ₹10,000'
   if (loanAmount > 100000000) errors.loanAmount = 'Maximum loan amount is ₹10 Cr'
 
-  if (!interestRate || interestRate < 0.5) errors.interestRate = 'Minimum interest rate is 0.5%'
+  if (interestRate == null || interestRate < 0.5) errors.interestRate = 'Minimum interest rate is 0.5%'
   if (interestRate > 30) errors.interestRate = 'Maximum interest rate is 30%'
 
-  if (!tenure || tenure < 1) errors.tenure = 'Minimum tenure is 1 month'
+  if (tenure == null || tenure < 1) errors.tenure = 'Minimum tenure is 1 month'
   if (tenure > 360) errors.tenure = 'Maximum tenure is 360 months (30 years)'
 
   if (processingFee < 0) errors.processingFee = 'Processing fee cannot be negative'

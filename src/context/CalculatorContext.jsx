@@ -3,7 +3,7 @@ import { calculateEMI, generateAmortizationSchedule, calculateTotalInterest } fr
 
 const CalculatorContext = createContext()
 
-const STORAGE_KEY = 'loanwise_calculator_values'
+const STORAGE_KEY = 'loanvix_calculator_values'
 
 const defaultValues = {
   loanAmount: 1000000,

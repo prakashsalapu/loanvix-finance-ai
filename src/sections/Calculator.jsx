@@ -254,11 +254,10 @@ export default function Calculator() {
                 <>
                   <p className="text-sm font-medium opacity-80 mb-1">Monthly EMI</p>
                   <motion.div
-                    key={results.emi}
                     initial={{ scale: 0.92, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ duration: 0.3 }}
-                    className="text-4xl lg:text-5xl font-bold tracking-tight"
+                    className="text-4xl lg:text-5xl font-bold tracking-tight text-white"
                     aria-live="polite"
                     aria-atomic="true"
                   >
@@ -285,6 +284,7 @@ export default function Calculator() {
                 </div>
               ))}
             </div>
+            
 
             {/* Breakdown bar */}
             <div className="card p-5 border border-gray-100">

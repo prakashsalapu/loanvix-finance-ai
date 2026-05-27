@@ -46,7 +46,7 @@ export default function Footer() {
               href="#home"
               onClick={(e) => { e.preventDefault(); handleNav('#home') }}
               className="flex items-center gap-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg w-fit"
-              aria-label="LoanWise home"
+              aria-label="LoanVix home"
             >
               <div className="w-10 h-10 rounded-full gradient-bg flex items-center justify-center" aria-hidden="true">
                 <IndianRupee className="w-5 h-5 text-white" />
@@ -60,9 +60,9 @@ export default function Footer() {
               analyse loans, and make informed decisions.
             </p>
             <address className="not-italic space-y-3">
-              <a href="mailto:hello@loanwise.app" className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-colors">
+              <a href="mailto:hello@loanvix.app" className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-colors">
                 <Mail className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
-                hello@loanwise.app
+                hello@loanvix.app
               </a>
               <a href="tel:+911234567890" className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition-colors">
                 <Phone className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
@@ -116,7 +116,7 @@ export default function Footer() {
         {/* Divider */}
         <div className="border-t border-gray-100 mt-12 pt-8 sm:pt-10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-            <p>&copy; 2024 LoanWise. All rights reserved.</p>
+            <p>&copy; 2024 LoanVix. All rights reserved.</p>
             <p>Designed for optimal financial planning.</p>
           </div>
         </div>

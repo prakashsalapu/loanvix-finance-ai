@@ -40,7 +40,7 @@ const features = [
   {
     icon: Smartphone,
     title: 'Fully Responsive',
-    description: 'Seamlessly use LoanWise across mobile, tablet, and desktop with a touch-friendly UI.'
+    description: 'Seamlessly use LoanVix across mobile, tablet, and desktop with a touch-friendly UI.'
   }
 ]
 

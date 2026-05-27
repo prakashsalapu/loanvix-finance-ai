@@ -25,13 +25,13 @@ function AppContent() {
       <div
         className="fixed inset-0 flex items-center justify-center bg-gray-50"
         role="status"
-        aria-label="Loading LoanWise"
+        aria-label="Loading LoanVix"
       >
         <div className="flex flex-col items-center gap-4">
           <div className="w-16 h-16 rounded-full gradient-bg flex items-center justify-center" aria-hidden="true">
             <span className="text-white text-2xl font-bold">₹</span>
           </div>
-          <p className="text-gray-500 text-sm font-medium animate-pulse">Loading LoanWise...</p>
+          <p className="text-gray-500 text-sm font-medium animate-pulse">Loading LoanVix...</p>
         </div>
       </div>
     )

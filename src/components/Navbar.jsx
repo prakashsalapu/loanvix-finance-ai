@@ -71,7 +71,7 @@ export default function Navbar() {
             href="#home"
             onClick={(e) => { e.preventDefault(); handleNavClick('#home') }}
             className="flex items-center gap-2 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
-            aria-label="LoanWise home"
+            aria-label="LoanVix home"
           >
             <div className="w-9 h-9 rounded-full gradient-bg flex items-center justify-center" aria-hidden="true">
               <IndianRupee className="w-4 h-4 text-white" />

@@ -31,18 +31,7 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 relative z-10 w-full">
         <div className="text-center max-w-4xl mx-auto">
 
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="mb-6 sm:mb-8"
-          >
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-sm font-medium text-blue-600">
-              <Sparkles className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
-              Year-wise repayment tracking
-            </span>
-          </motion.div>
+        
 
           {/* Heading — clamp font size to prevent overflow on small screens */}
           <motion.h1

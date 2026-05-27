@@ -48,7 +48,7 @@ export default function CTA() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed"
             >
-              Join thousands of users who have made smarter financial decisions with LoanWise.
+              Join thousands of users who have made smarter financial decisions with LoanVix.
               Calculate, analyse, and plan your loans with confidence.
             </motion.p>
 

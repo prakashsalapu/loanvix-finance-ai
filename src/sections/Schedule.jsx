@@ -17,7 +17,7 @@ async function exportPDF(schedule, values, results) {
   // Header
   doc.setFontSize(20)
   doc.setTextColor(37, 99, 235)
-  doc.text('LoanWise — Repayment Schedule', 14, 18)
+  doc.text('LoanVix — Repayment Schedule', 14, 18)
 
   doc.setFontSize(10)
   doc.setTextColor(100, 100, 100)
@@ -65,7 +65,7 @@ async function exportPDF(schedule, values, results) {
     margin: { left: 14, right: 14 }
   })
 
-  doc.save('loanwise-repayment-schedule.pdf')
+  doc.save('loanvix-repayment-schedule.pdf')
 }
 
 function exportCSV(schedule, values, results) {
@@ -76,12 +76,12 @@ function exportCSV(schedule, values, results) {
     'Monthly EMI': `₹${Math.round(results.emi).toLocaleString('en-IN')}`,
     'Total Interest': `₹${Math.round(results.totalInterest).toLocaleString('en-IN')}`
   }
-  const csv = generateScheduleCSV(schedule, { title: 'LoanWise Repayment Schedule', ...meta })
+  const csv = generateScheduleCSV(schedule, { title: 'LoanVix Repayment Schedule', ...meta })
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'loanwise-repayment-schedule.csv'
+  a.download = 'loanvix-repayment-schedule.csv'
   a.click()
   URL.revokeObjectURL(url)
 }
