@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react'
 import { calculateEMI, generateAmortizationSchedule, calculateTotalInterest } from '../utils/calculations'
 
-const CalculatorContext = createContext()
+export const CalculatorContext = createContext()
 
 const STORAGE_KEY = 'loanvix_calculator_values'
 
