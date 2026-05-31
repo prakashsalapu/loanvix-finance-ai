@@ -3,6 +3,10 @@ import Navbar from './components/Navbar'
 import Hero from './sections/Hero'
 import Features from './sections/Features'
 import Calculator from './sections/Calculator'
+import PrepaymentAnalyzer from './sections/PrepaymentAnalyzer'
+import YearlyPrepaymentAnalyzer from './sections/YearlyPrepaymentAnalyzer'
+import ScenarioComparison from './sections/ScenarioComparison'
+import AIRecommendations from './sections/AIRecommendations'
 import Analytics from './sections/Analytics'
 import Schedule from './sections/Schedule'
 import Insights from './sections/Insights'
@@ -45,6 +49,10 @@ function AppContent() {
         <Hero />
         <Features />
         <Calculator />
+        <PrepaymentAnalyzer />
+        <YearlyPrepaymentAnalyzer />
+        <ScenarioComparison />
+        <AIRecommendations />
         <Insights />
         <Analytics />
         <Schedule />
