@@ -49,14 +49,14 @@ function AppContent() {
         <Hero />
         <Features />
         <Calculator />
+        <Schedule />
+        <Analytics />
         <PrepaymentAnalyzer />
         <YearlyPrepaymentAnalyzer />
         <ScenarioComparison />
         <AIRecommendations />
-        <Insights />
-        <Analytics />
-        <Schedule />
-        <CTA />
+        {/* <Insights />
+        <CTA /> */}
       </main>
       <Footer />
       <BackToTop />

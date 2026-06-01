@@ -292,37 +292,8 @@ export default function Calculator() {
                 <FieldError message={errors.tenure} />
               </div>
 
-              {/* PROCESSING FEE */}
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <CreditCard className="w-4 h-4 text-gray-400" />
-                  Processing Fee (%)
-                </label>
-
-                <div className="relative">
-                  <input
-                    type="number"
-                    value={values.processingFee}
-                    onChange={(e) =>
-                      updateValue('processingFee', Number(e.target.value))
-                    }
-                    className="input pr-8"
-                    min="0"
-                    max="5"
-                    step="0.01"
-                  />
-
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                    %
-                  </span>
-                </div>
-
-                <FieldError message={errors.processingFee} />
-              </div>
-
-              {/* PREPAYMENT */}
-
+              {/* PREPAYMENT - Hidden */}
+              {/* 
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
                   <TrendingDown className="w-4 h-4 text-gray-400" />
@@ -342,7 +313,7 @@ export default function Calculator() {
                 </div>
 
                 <FieldError message={errors.prepaymentAmount} />
-              </div>
+              </div> */}
 
             </div>
           </motion.div>
@@ -400,11 +371,11 @@ export default function Calculator() {
 
               <div className="card p-4 border border-gray-100">
                 <p className="text-xs text-gray-500 mb-1">
-                  Processing Fee
+                  Total Tenure
                 </p>
 
                 <p className="text-lg font-bold text-gray-900">
-                  {formatCurrency(results.processingFeeAmount)}
+                  {formatTenure(values.tenure)}
                 </p>
               </div>
 

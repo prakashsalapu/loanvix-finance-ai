@@ -41,7 +41,7 @@ export const loanConfigurations = {
   home: {
     label: "Home Loan",
     minAmount: 500000,
-    maxAmount: 100000000,
+    maxAmount: 50000000,
     minInterest: 6,
     maxInterest: 20,
     minTenure: 12,

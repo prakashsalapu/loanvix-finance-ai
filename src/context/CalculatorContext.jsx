@@ -6,9 +6,9 @@ export const CalculatorContext = createContext()
 const STORAGE_KEY = 'loanvix_calculator_values'
 
 const defaultValues = {
-  loanAmount: 1000000,
-  interestRate: 8.5,
-  tenure: 240,
+  loanAmount: 1100000,
+  interestRate: 17.85,
+  tenure: 154,
   processingFee: 1,
   prepaymentAmount: 0,
   loanType: 'home'
@@ -21,7 +21,7 @@ function loadStoredValues() {
       const parsed = JSON.parse(saved)
       // Validate that stored values are within acceptable ranges
       if (
-        parsed.loanAmount >= 10000 && parsed.loanAmount <= 100000000 &&
+        parsed.loanAmount >= 10000 && parsed.loanAmount <= 50000000 &&
         parsed.interestRate >= 1 && parsed.interestRate <= 30 &&
         parsed.tenure >= 1 && parsed.tenure <= 360
       ) {
