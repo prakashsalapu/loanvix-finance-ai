@@ -38,6 +38,10 @@ export default function Footer() {
             Calculate EMIs, analyse loans, and make informed decisions.
 
           </p>
+          <div>
+          <p className="text-sm text-gray-600">
+            Made with 🩵 by Prakash Salapu for Financial Clarity.
+          </p></div>
 
           {/* COPYRIGHT */}
 

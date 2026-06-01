@@ -8,8 +8,8 @@ const navLinks = [
   { name: 'Features', href: '#features' },
   { name: 'Calculator', href: '#calculator' },
   { name: 'Analytics', href: '#analytics' },
-  { name: 'Schedule', href: '#schedule' },
-  { name: 'About', href: '#about' }
+  // { name: 'Schedule', href: '#schedule' },
+  // { name: 'About', href: '#about' }
 ]
 
 function cn(...classes) {
@@ -70,7 +70,7 @@ export default function Navbar() {
           <a
             href="#home"
             onClick={(e) => { e.preventDefault(); handleNavClick('#home') }}
-            className="flex items-center gap-2 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
+            className="flex items-center gap-2 flex-shrink-0 rounded-lg"
             aria-label="LoanVix home"
           >
             <div className="w-9 h-9 rounded-full gradient-bg flex items-center justify-center" aria-hidden="true">
@@ -93,7 +93,7 @@ export default function Navbar() {
                   onClick={(e) => { e.preventDefault(); handleNavClick(link.href) }}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'relative px-4 py-2 text-sm font-medium rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500',
+                    'relative px-4 py-2 text-sm font-medium rounded-full transition-colors',
                     isActive ? 'text-white' : 'text-gray-600 hover:text-gray-900'
                   )}
                 >
@@ -101,7 +101,7 @@ export default function Navbar() {
                     <motion.div
                       layoutId="activeNav"
                       className="absolute inset-0 gradient-bg rounded-full"
-                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                      transition={{ type: 'tween', ease: 'linear', duration: 0.1 }}
                       aria-hidden="true"
                     />
                   )}
@@ -114,7 +114,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="lg:hidden p-2 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
@@ -146,7 +146,7 @@ export default function Navbar() {
                     onClick={(e) => { e.preventDefault(); handleNavClick(link.href) }}
                     aria-current={isActive ? 'page' : undefined}
                     className={cn(
-                      'block px-4 py-3 rounded-xl text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500',
+                      'block px-4 py-3 rounded-xl text-sm font-medium transition-colors',
                       isActive
                         ? 'gradient-bg text-white'
                         : 'text-gray-700 hover:bg-gray-100'

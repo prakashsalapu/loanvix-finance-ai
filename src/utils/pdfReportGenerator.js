@@ -10,6 +10,15 @@ import jsPDF from 'jspdf'
  */
 export async function generatePrepaymentReportPDF(loan, analysis, scenarios, healthScore, recommendations) {
   try {
+    // Validate inputs
+    if (!loan || !analysis || !analysis.scenarios || analysis.scenarios.length === 0) {
+      throw new Error('Invalid loan or analysis data')
+    }
+    
+    if (!Array.isArray(recommendations)) {
+      console.warn('Recommendations is not an array, using empty array')
+    }
+
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -59,10 +68,14 @@ export async function generatePrepaymentReportPDF(loan, analysis, scenarios, hea
     // Key metrics
     doc.setTextColor(0, 0, 0)
     doc.setFontSize(10)
+    
+    // Get the best scenario object
+    const bestScenarioForMetrics = analysis.scenarios[analysis.bestScenarioIndex] || analysis.scenarios[0]
+    
     const metrics = [
       { label: 'Current Tenure', value: `${(loan.tenure / 12).toFixed(1)} years` },
       { label: 'Total Interest', value: `₹${formatCurrency(loan.totalInterest)}` },
-      { label: 'Potential Savings', value: `₹${formatCurrency(analysis.bestScenario?.savings?.interestSaved || 0)}` }
+      { label: 'Potential Savings', value: `₹${formatCurrency(bestScenarioForMetrics?.savings?.interestSaved || 0)}` }
     ]
 
     let metricsX = margin + 65
@@ -106,6 +119,12 @@ export async function generatePrepaymentReportPDF(loan, analysis, scenarios, hea
     doc.setFont(undefined, 'normal')
     doc.setFontSize(8)
     const bestScenario = analysis.scenarios[analysis.bestScenarioIndex] || analysis.scenarios[0]
+    
+    // Ensure bestScenario has required properties
+    if (!bestScenario || !bestScenario.metrics || !bestScenario.savings) {
+      throw new Error('Invalid scenario data: missing metrics or savings')
+    }
+    
     const tableData = [
       {
         label: 'Monthly EMI',
@@ -117,13 +136,13 @@ export async function generatePrepaymentReportPDF(loan, analysis, scenarios, hea
         label: 'Tenure',
         current: `${(loan.tenure / 12).toFixed(1)} years`,
         best: `${(bestScenario.metrics.tenure / 12).toFixed(1)} years`,
-        diff: `-${(bestScenario.savings.yearsReduced).toFixed(1)} years`
+        diff: `-${(bestScenario.savings.yearsReduced || 0).toFixed(1)} years`
       },
       {
         label: 'Total Interest',
         current: `₹${formatCurrency(loan.totalInterest)}`,
         best: `₹${formatCurrency(bestScenario.metrics.totalInterest || 0)}`,
-        diff: `₹${formatCurrency(bestScenario.savings.interestSaved)}`
+        diff: `₹${formatCurrency(bestScenario.savings.interestSaved || 0)}`
       },
       {
         label: 'Total Repayment',
@@ -132,6 +151,10 @@ export async function generatePrepaymentReportPDF(loan, analysis, scenarios, hea
         diff: `₹${formatCurrency((loan.principal + loan.totalInterest) - (bestScenario.metrics.totalRepayment || 0))}`
       }
     ]
+
+    if (!tableData || tableData.length === 0) {
+      throw new Error('Failed to create table data')
+    }
 
     tableData.forEach((row) => {
       tableX = margin
@@ -151,7 +174,7 @@ export async function generatePrepaymentReportPDF(loan, analysis, scenarios, hea
     yPosition += 5
 
     // ===== SCENARIO DETAILS =====
-    if (analysis.scenarios && analysis.scenarios.length > 0) {
+    if (analysis.scenarios && Array.isArray(analysis.scenarios) && analysis.scenarios.length > 0) {
       // Add page break if needed
       if (yPosition > pageHeight - 60) {
         doc.addPage()
@@ -172,20 +195,20 @@ export async function generatePrepaymentReportPDF(loan, analysis, scenarios, hea
 
         doc.setFontSize(10)
         doc.setFont(undefined, 'bold')
-        doc.text(`${idx + 1}. ${scenario.name}`, margin + 2, yPosition)
+        doc.text(`${idx + 1}. ${scenario.name || 'Scenario'}`, margin + 2, yPosition)
         yPosition += 6
 
         doc.setFontSize(9)
         doc.setFont(undefined, 'normal')
         doc.setTextColor(100, 100, 100)
-        doc.text(scenario.description, margin + 4, yPosition, { maxWidth: pageWidth - 2 * margin - 4 })
+        doc.text(scenario.description || '', margin + 4, yPosition, { maxWidth: pageWidth - 2 * margin - 4 })
         yPosition += 6
 
         doc.setTextColor(0, 0, 0)
         const scenarioInfo = [
-          `EMI: ₹${formatCurrency(scenario.metrics.emi)}`,
-          `Tenure: ${(scenario.metrics.tenure / 12).toFixed(1)} yrs`,
-          `Interest: ₹${formatCurrency(scenario.metrics.totalInterest)}`
+          `EMI: ₹${formatCurrency(scenario.metrics?.emi || 0)}`,
+          `Tenure: ${((scenario.metrics?.tenure || 0) / 12).toFixed(1)} yrs`,
+          `Interest: ₹${formatCurrency(scenario.metrics?.totalInterest || 0)}`
         ]
         doc.setFontSize(8)
         scenarioInfo.forEach((info) => {
@@ -200,7 +223,7 @@ export async function generatePrepaymentReportPDF(loan, analysis, scenarios, hea
     yPosition += 2
 
     // ===== AI RECOMMENDATIONS =====
-    if (recommendations && recommendations.length > 0) {
+    if (recommendations && Array.isArray(recommendations) && recommendations.length > 0) {
       if (yPosition > pageHeight - 60) {
         doc.addPage()
         yPosition = margin
@@ -224,12 +247,12 @@ export async function generatePrepaymentReportPDF(loan, analysis, scenarios, hea
         doc.setFont(undefined, 'bold')
         doc.setFontSize(9)
         doc.setTextColor(0, 0, 0)
-        doc.text(`${rec.title}`, margin + 2, yPosition + 3)
+        doc.text(`${rec.title || 'Recommendation'}`, margin + 2, yPosition + 3)
 
         doc.setFont(undefined, 'normal')
         doc.setFontSize(8)
         doc.setTextColor(80, 80, 80)
-        doc.text(rec.description, margin + 2, yPosition + 8, { maxWidth: pageWidth - 2 * margin - 4 })
+        doc.text(rec.description || '', margin + 2, yPosition + 8, { maxWidth: pageWidth - 2 * margin - 4 })
 
         yPosition += 22
       })

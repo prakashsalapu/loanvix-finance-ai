@@ -32,6 +32,18 @@ const ICON_MAP = {
   Lightbulb
 }
 
+// Map Tailwind color classes to actual hex colors for SVG
+const COLOR_MAP = {
+  'text-emerald-600': '#10b981',
+  'text-blue-600': '#3b82f6',
+  'text-amber-600': '#d97706',
+  'text-red-600': '#ef4444'
+}
+
+function getTailwindColorAsHex(tailwindColor) {
+  return COLOR_MAP[tailwindColor] || '#3b82f6'
+}
+
 /**
  * AI Recommendations & Loan Health Component
  * Displays AI-powered insights, health score, and recommendations
@@ -96,17 +108,30 @@ export default function AIRecommendations() {
   const handleGenerateReport = async () => {
     if (!scenarioData) return
     
-    const success = await generatePrepaymentReportPDF(
-      loan,
-      scenarioData,
-      scenarioData.scenarios,
-      healthScore,
-      recommendations
-    )
-    
-    if (success) {
-      // Show success message (can be improved with toast)
-      alert('Report generated successfully!')
+    try {
+      // Format analysis object for PDF generator
+      const analysisForPDF = {
+        scenarios: scenarioData.scenarios || [],
+        bestScenario: scenarioData.bestScenario,
+        bestScenarioIndex: scenarioData.scenarios.findIndex(s => s.id === scenarioData.bestScenario)
+      }
+      
+      const success = await generatePrepaymentReportPDF(
+        loan,
+        analysisForPDF,
+        scenarioData.scenarios || [],
+        healthScore,
+        Array.isArray(recommendations) ? recommendations : []
+      )
+      
+      if (success) {
+        alert('Report generated successfully!')
+      } else {
+        alert('Failed to generate report. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error generating report:', error)
+      alert('Error generating report: ' + error.message)
     }
   }
 
@@ -130,114 +155,14 @@ export default function AIRecommendations() {
             AI Insights & Recommendations
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-            Loan Health Score &<span className="gradient-text">Intelligence</span>
+           Personalized<span className="gradient-text"> Recommendations</span>
           </h2>
           <p className="text-gray-500 text-base sm:text-lg leading-relaxed">
             Get personalized AI recommendations based on comprehensive analysis of your loan. Understand your loan health and optimization opportunities.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8 mb-12">
-          {/* Health Score Card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true, margin: '-100px' }}
-            className={`rounded-2xl border p-8 shadow-sm ${healthInterpretation.bgColor} ${healthInterpretation.borderColor}`}
-          >
-            <h3 className="text-sm uppercase tracking-wider font-semibold text-gray-600 mb-6">Loan Health Score</h3>
-
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="text-6xl font-bold text-gray-900 mb-2">{healthScore}</div>
-                <p className={`text-lg font-semibold ${healthInterpretation.color}`}>{healthInterpretation.level}</p>
-              </div>
-              <div className="relative w-28 h-28">
-                <svg viewBox="0 0 100 100" className="w-full h-full">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="8" />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="45"
-                    fill="none"
-                    stroke={healthInterpretation.color.replace('text-', '')}
-                    strokeWidth="8"
-                    strokeDasharray={`${(healthScore / 100) * 282.7} 282.7`}
-                    strokeLinecap="round"
-                    className="transition-all duration-500"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-gray-900">{healthScore}%</span>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-gray-600 mb-6">{healthInterpretation.description}</p>
-
-            {/* Key Metrics */}
-            <div className="space-y-4 border-t border-gray-200 pt-6">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">Interest Percentage</p>
-                <p className="font-bold text-gray-900">{summary.interestAsPercentageOfPrincipal}%</p>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">Years to Repay</p>
-                <p className="font-bold text-gray-900">{summary.yearsToRepay}</p>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">Monthly Outflow</p>
-                <p className="font-bold text-gray-900">{formatCurrency(summary.monthlyOutflow)}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Opportunities Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            viewport={{ once: true, margin: '-100px' }}
-            className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-8 shadow-sm"
-          >
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Your Optimization Opportunities</h3>
-
-            {summary.potentialSavings > 0 ? (
-              <div className="grid sm:grid-cols-3 gap-6 mb-8">
-                <div className="text-center">
-                  <p className="text-3xl font-bold gradient-text mb-2">{formatCurrency(summary.potentialSavings)}</p>
-                  <p className="text-sm text-gray-600">Interest Savings Potential</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-emerald-600 mb-2">{summary.potentialTenureReduction}</p>
-                  <p className="text-sm text-gray-600">Months You Can Reduce</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-blue-600 mb-2">
-                    {((summary.potentialSavings / summary.totalInterestPayable) * 100).toFixed(0)}%
-                  </p>
-                  <p className="text-sm text-gray-600">Interest Reduction</p>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <p className="text-gray-600">Your loan is well-optimized. Continue your current strategy.</p>
-              </div>
-            )}
-
-            {/* Download Report Button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleGenerateReport}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20"
-            >
-              <Download className="w-5 h-5" />
-              Download Full Report (PDF)
-            </motion.button>
-          </motion.div>
-        </div>
+       
 
         {/* Recommendations Section */}
         {recommendations.length > 0 && (
@@ -247,7 +172,7 @@ export default function AIRecommendations() {
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true, margin: '-100px' }}
           >
-            <h3 className="text-2xl font-bold text-gray-900 mb-8">Personalized Recommendations</h3>
+            {/* <h3 className="text-2xl font-bold text-gray-900 mb-8">Personalized Recommendations</h3> */}
 
             <div className="space-y-6">
               {recommendations.map((rec, idx) => {
