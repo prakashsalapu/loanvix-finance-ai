@@ -11,6 +11,7 @@ import Analytics from './sections/Analytics'
 import Schedule from './sections/Schedule'
 import Insights from './sections/Insights'
 import CTA from './sections/CTA'
+import FAQ from './sections/FAQ'
 import Footer from './sections/Footer'
 import ScrollProgress from './components/ScrollProgress'
 import BackToTop from './components/BackToTop'
@@ -57,6 +58,7 @@ function AppContent() {
         <AIRecommendations />
         {/* <Insights />
         <CTA /> */}
+        <FAQ />
       </main>
       <Footer />
       <BackToTop />

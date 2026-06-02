@@ -8,6 +8,7 @@ const navLinks = [
   { name: 'Features', href: '#features' },
   { name: 'Calculator', href: '#calculator' },
   { name: 'Analytics', href: '#analytics' },
+  { name: 'Know More', href: '#faq' },
   // { name: 'Schedule', href: '#schedule' },
   // { name: 'About', href: '#about' }
 ]
@@ -136,24 +137,23 @@ export default function Navbar() {
             transition={{ duration: 0.22, ease: 'easeInOut' }}
             className="lg:hidden overflow-hidden bg-white border-t border-gray-100 shadow-lg"
           >
-            <nav className="px-4 py-3 space-y-1" aria-label="Mobile navigation">
+            <nav className="px-3 py-2 space-y-1" aria-label="Mobile navigation">
               {navLinks.map((link) => {
                 const isActive = activeSection === link.href.slice(1)
                 return (
-                  <a
+                  <button
                     key={link.name}
-                    href={link.href}
-                    onClick={(e) => { e.preventDefault(); handleNavClick(link.href) }}
+                    onClick={() => handleNavClick(link.href)}
                     aria-current={isActive ? 'page' : undefined}
                     className={cn(
-                      'block px-4 py-3 rounded-xl text-sm font-medium transition-colors',
+                      'w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors active:scale-95',
                       isActive
-                        ? 'gradient-bg text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? 'gradient-bg text-white shadow-md'
+                        : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
                     )}
                   >
                     {link.name}
-                  </a>
+                  </button>
                 )
               })}
             </nav>
