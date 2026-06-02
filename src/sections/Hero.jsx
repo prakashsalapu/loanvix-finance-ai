@@ -22,7 +22,7 @@ export default function Hero() {
       className="min-h-screen flex items-center justify-center relative overflow-hidden pt-4 sm:pt-16 lg:pt-20"
       aria-labelledby="hero-heading"
     >
-      {/* Subtle background blobs — pointer-events disabled, aria-hidden */}
+      {/* Subtle background blobs  -  pointer-events disabled, aria-hidden */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute top-1/4 -left-32 w-80 h-80 bg-blue-500/8 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 -right-32 w-80 h-80 bg-emerald-500/8 rounded-full blur-3xl" />
@@ -46,7 +46,7 @@ export default function Hero() {
 
 </motion.div>        
 
-          {/* Heading — clamp font size to prevent overflow on small screens */}
+          {/* Heading  -  clamp font size to prevent overflow on small screens */}
           <motion.h1
             id="hero-heading"
             initial={{ opacity: 0, y: 20 }}
