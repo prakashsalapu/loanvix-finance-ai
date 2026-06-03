@@ -1,0 +1,2 @@
+-- Supabase seed file for LoanVix.
+-- Add default sample records here once you configure Supabase auth and profiles.
