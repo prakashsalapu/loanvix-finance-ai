@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, BarChart3, FileText, ShieldCheck, Sparkles, TrendingUp, Wallet } from 'lucide-react'
+import { ArrowRight, BarChart3, FileText, ShieldCheck, Sparkles, TrendingUp, Wallet2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { useCalculator } from '../context/CalculatorContext'
 import LoanVixLayout from '../layouts/LoanVixLayout'
@@ -17,74 +17,82 @@ export default function Dashboard() {
   const fallbackName = user?.email?.split('@')[0] || 'there'
   const welcomeName = displayName || fallbackName
 
-  const overviewCards = [
+  const heroMetrics = [
     {
-      title: 'Total interest',
-      value: `₹${results.totalInterest.toLocaleString()}`,
-      detail: 'Projected borrowing cost',
+      label: 'Loan Amount',
+      value: `₹${values.loanAmount.toLocaleString()}`,
+      detail: 'Principal borrowed',
+      icon: Wallet2,
       tone: 'from-sky-50 to-sky-100/70 text-sky-700'
     },
     {
-      title: 'Total payment',
-      value: `₹${results.totalPayment.toLocaleString()}`,
-      detail: 'Principal + interest overview',
+      label: 'EMI',
+      value: `₹${results.emi.toLocaleString()}`,
+      detail: 'Monthly repayment',
+      icon: BarChart3,
       tone: 'from-emerald-50 to-emerald-100/70 text-emerald-700'
     },
     {
-      title: 'Prepayment savings',
-      value: `₹${results.interestSavingsWithPrepayment.toLocaleString()}`,
-      detail: 'Potential savings from extra payments',
+      label: 'Interest Payable',
+      value: `₹${results.totalInterest.toLocaleString()}`,
+      detail: 'Projected borrowing cost',
+      icon: TrendingUp,
       tone: 'from-amber-50 to-amber-100/70 text-amber-700'
+    },
+    {
+      label: 'Savings',
+      value: `₹${results.interestSavingsWithPrepayment.toLocaleString()}`,
+      detail: 'Potential saved with prepayments',
+      icon: Sparkles,
+      tone: 'from-violet-50 to-violet-100/70 text-violet-700'
     }
   ]
 
   return (
     <LoanVixLayout>
       <div className="min-w-0 space-y-6 lg:space-y-8">
-        <section className="overflow-hidden rounded-[30px] border border-slate-200/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 text-white shadow-[0_25px_80px_-28px_rgba(15,23,42,0.6)] sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <section className="overflow-hidden rounded-[32px] border border-slate-200/80 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-6 text-white shadow-[0_25px_80px_-28px_rgba(15,23,42,0.6)] sm:p-8">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-2xl">
               <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3 py-1 text-sm font-medium text-slate-100 backdrop-blur">
                 <ShieldCheck className="mr-2 h-4 w-4" />
                 Smart repayment workspace
               </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
-                Hello, {welcomeName}
+                Welcome back, {welcomeName}
               </h1>
               <p className="mt-3 max-w-xl text-sm text-slate-300 sm:text-base">
-                Review your active loan plan, compare repayment paths, and export polished summaries from one refined workspace.
+                Manage your loans, track repayments, and analyze savings from one polished dashboard.
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                <p className="text-sm text-slate-300">Loan amount</p>
-                <p className="mt-2 text-xl font-semibold">₹{values.loanAmount.toLocaleString()}</p>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                <p className="text-sm text-slate-300">Expected EMI</p>
-                <p className="mt-2 text-xl font-semibold">₹{results.emi.toLocaleString()}</p>
-              </div>
+            <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[520px]">
+              {heroMetrics.map((metric, index) => {
+                const Icon = metric.icon
+
+                return (
+                  <motion.article
+                    key={metric.label}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="rounded-[22px] border border-white/10 bg-white/10 p-4 backdrop-blur"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm text-slate-300">{metric.label}</p>
+                        <p className="mt-2 text-lg font-semibold text-white">{metric.value}</p>
+                      </div>
+                      <div className={`rounded-2xl bg-gradient-to-br ${metric.tone} p-2.5`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm text-slate-400">{metric.detail}</p>
+                  </motion.article>
+                )
+              })}
             </div>
           </div>
-        </section>
-
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {overviewCards.map((card, index) => (
-            <motion.article
-              key={card.title}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm"
-            >
-              <div className={`rounded-2xl bg-gradient-to-br ${card.tone} p-3`}>
-                <p className="text-sm font-semibold">{card.title}</p>
-                <p className="mt-2 text-xl font-semibold">{card.value}</p>
-              </div>
-              <p className="mt-3 text-sm text-slate-600">{card.detail}</p>
-            </motion.article>
-          ))}
         </section>
 
         <section id="loan-tools" className="space-y-6">
