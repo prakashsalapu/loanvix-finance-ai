@@ -3,8 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   BarChart3,
+  Bookmark,
+  CalendarDays,
   Calculator,
   FileText,
+  GitCompareArrows,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -18,13 +21,19 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 
-const dashboardNav = [
+const mainNavItems = [
   { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
-  { label: 'Calculators', hash: '#loan-tools', icon: Calculator },
-  { label: 'Repayments', hash: '#repayment-analysis', icon: Repeat2 },
+  { label: 'EMI Calculator', hash: '#loan-tools', icon: Calculator },
+  { label: 'Loan Comparison', hash: '#repayment-analysis', icon: GitCompareArrows },
   { label: 'EMI Analyzer', hash: '#loan-tools', icon: BarChart3 },
   { label: 'Prepayment Analyzer', hash: '#loan-tools', icon: Sparkles },
+  { label: 'Repayment Planner', hash: '#repayment-analysis', icon: Repeat2 },
+  { label: 'Amortization Schedule', hash: '#amortization-schedule', icon: CalendarDays },
   { label: 'Reports', hash: '#reports', icon: FileText },
+  { label: 'Saved Calculations', hash: '#saved-calculations', icon: Bookmark }
+]
+
+const bottomNavItems = [
   { label: 'Profile', to: '/profile', icon: User },
   { label: 'Settings', to: '/settings', icon: Settings2 }
 ]
@@ -49,11 +58,14 @@ function Sidebar({ isCollapsed, onToggle, isMobileOpen, onClose, location, navig
       </div>
 
       <nav className="mt-6 flex flex-1 flex-col gap-1 text-sm text-slate-700">
-        {dashboardNav.map((item) => {
+        <div className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">
+          {!isCollapsed && 'Overview'}
+        </div>
+        {mainNavItems.map((item) => {
           const Icon = item.icon
           const isActive = item.to
             ? location.pathname === item.to
-            : location.pathname === '/dashboard' && (location.hash === item.hash || (!location.hash && item.hash === '#loan-tools'))
+            : location.pathname === '/dashboard' && location.hash === item.hash
 
           return (
             <button
@@ -83,22 +95,50 @@ function Sidebar({ isCollapsed, onToggle, isMobileOpen, onClose, location, navig
         })}
       </nav>
 
-      <div className={cn('rounded-3xl border border-slate-200 bg-slate-50 p-4', isCollapsed && 'hidden')}>
-        <p className="text-sm font-semibold text-slate-900">Focus mode</p>
-        <p className="mt-2 text-sm text-slate-600">Review EMI plans, prepayment impact, and reports from a single premium workspace.</p>
-      </div>
+      <div className="mt-4 space-y-1 border-t border-slate-200 pt-4">
+        {bottomNavItems.map((item) => {
+          const Icon = item.icon
+          const isActive = location.pathname === item.to
 
-      <button
-        type="button"
-        onClick={handleLogout}
-        className={cn(
-          'mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50',
-          isCollapsed && 'px-0'
-        )}
-      >
-        <LogOut className="h-4 w-4" />
-        {!isCollapsed && 'Logout'}
-      </button>
+          return (
+            <button
+              key={item.label}
+              type="button"
+              onClick={() => handleNavAction(item)}
+              className={cn(
+                'flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition-all duration-200',
+                isActive
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+                isCollapsed && 'justify-center px-0'
+              )}
+              title={isCollapsed ? item.label : undefined}
+            >
+              <span
+                className={cn(
+                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl',
+                  isActive ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'
+                )}
+              >
+                <Icon className="h-5 w-5" />
+              </span>
+              {!isCollapsed && <span className="truncate font-medium">{item.label}</span>}
+            </button>
+          )
+        })}
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          className={cn(
+            'mt-1 flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50',
+            isCollapsed && 'px-0'
+          )}
+        >
+          <LogOut className="h-4 w-4" />
+          {!isCollapsed && 'Logout'}
+        </button>
+      </div>
     </>
   )
 
