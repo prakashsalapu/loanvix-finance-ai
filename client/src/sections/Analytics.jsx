@@ -61,8 +61,8 @@ export default function Analytics() {
   }))
 
   return (
-    <section id="analytics" ref={ref} className="py-16 lg:py-24 bg-gray-50" aria-labelledby="analytics-heading">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="analytics" ref={ref} className="w-full rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:p-8" aria-labelledby="analytics-heading">
+      <div className="mx-auto w-full">
 
         <SectionHeader
           badge="Analytics"

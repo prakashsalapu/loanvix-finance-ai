@@ -140,8 +140,8 @@ export default function AIRecommendations() {
   }
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-full rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+      <div className="mx-auto w-full">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

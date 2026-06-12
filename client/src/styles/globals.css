@@ -23,11 +23,16 @@ html, body { min-height: 100%; }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #f9fafb;
+  background-color: #f8fafc;
   color: #111827;
   line-height: 1.6;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100%;
 }
 
 /* Custom scrollbar */
@@ -46,6 +51,20 @@ body {
 
 .gradient-bg {
   background: var(--gradient-primary);
+}
+
+/* Shared app shell */
+.dashboard-shell {
+  min-height: 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+.dashboard-panel {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px -16px rgba(15, 23, 42, 0.18);
 }
 
 /* Progress bar */

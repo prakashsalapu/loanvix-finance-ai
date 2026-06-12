@@ -68,8 +68,8 @@ export default function YearlyPrepaymentAnalyzer() {
   }
 
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-full rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:p-8">
+      <div className="mx-auto w-full">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -99,7 +99,7 @@ export default function YearlyPrepaymentAnalyzer() {
             viewport={{ once: true, margin: '-100px' }}
             className="lg:col-span-1"
           >
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm sticky top-24">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm sticky top-6">
               <div className="mb-6">
                 <label className="block text-xs uppercase tracking-widest font-semibold text-gray-500 mb-2">
                   Yearly Prepayment

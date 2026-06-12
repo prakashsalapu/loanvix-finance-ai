@@ -1,18 +1,20 @@
 import { useAuth } from '../hooks/useAuth'
 import { Link } from 'react-router-dom'
-import { ShieldCheck, ArrowRight, Key } from 'lucide-react'
+import { ArrowRight, Key, ShieldCheck } from 'lucide-react'
+import DashboardLayout from '../layouts/DashboardLayout'
 
 export default function Settings() {
   const { user, signOut } = useAuth()
 
   return (
-    <main className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl space-y-8">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-          <div className="flex items-center justify-between gap-4">
+    <DashboardLayout>
+      <div className="min-w-0 space-y-6">
+        <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Settings</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">Settings</p>
               <h1 className="mt-3 text-3xl font-semibold text-slate-900">Security controls</h1>
+              <p className="mt-3 max-w-2xl text-sm text-slate-600">Keep your account and loan workspace operating with confident, secure access.</p>
             </div>
             <button
               type="button"
@@ -23,7 +25,7 @@ export default function Settings() {
             </button>
           </div>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
               <div className="flex items-center gap-3 text-slate-900">
                 <ShieldCheck className="h-5 w-5" />
@@ -53,13 +55,13 @@ export default function Settings() {
               Reset password
             </Link>
           </div>
-        </div>
+        </section>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
           <p className="text-sm text-slate-600">Signed in as</p>
           <p className="mt-2 text-lg font-semibold text-slate-900">{user?.email}</p>
-        </div>
+        </section>
       </div>
-    </main>
+    </DashboardLayout>
   )
 }
